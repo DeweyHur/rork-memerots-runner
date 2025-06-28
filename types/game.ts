@@ -6,6 +6,12 @@ export interface Character {
   specialWeapon: string;
   specialAbility: string;
   image: string;
+  sprites?: {
+    walk: any;
+    jump: any;
+    fall: any;
+    attack: any;
+  };
   stats: {
     speed: number;
     power: number;

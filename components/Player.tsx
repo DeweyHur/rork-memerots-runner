@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Character } from '@/types/game';
 import Colors from '@/constants/colors';
+import SpriteAnimation from './SpriteAnimation';
 
 interface PlayerProps {
   character: Character | null;
@@ -17,6 +18,49 @@ interface PlayerProps {
 export default function Player({ character, state, shielded }: PlayerProps) {
   if (!character) return null;
   
+  // If character has sprites, use them
+  if (character.sprites) {
+    let spriteSource;
+    let isPlaying = true;
+    
+    // Determine which sprite to use based on state
+    if (state.jumping) {
+      spriteSource = character.sprites.jump;
+    } else if (state.crouching) {
+      spriteSource = character.sprites.fall; // Use fall sprite for crouching
+    } else if (state.dashing || state.avoiding) {
+      spriteSource = character.sprites.attack; // Use attack sprite for dashing/avoiding
+    } else {
+      spriteSource = character.sprites.walk;
+    }
+    
+    return (
+      <View style={styles.container}>
+        <View style={styles.spriteContainer}>
+          <SpriteAnimation
+            spriteSheet={spriteSource}
+            columns={4}
+            rows={1}
+            frameRate={150}
+            isPlaying={isPlaying}
+            style={{
+              transform: [
+                { scaleY: state.crouching ? 0.7 : 1 },
+                { scaleX: state.avoiding ? -1 : 1 }, // Flip horizontally when avoiding
+              ],
+            }}
+          />
+        </View>
+        
+        {/* Shield effect */}
+        {shielded && (
+          <View style={styles.shield} />
+        )}
+      </View>
+    );
+  }
+  
+  // Fallback to original geometric design if no sprites
   return (
     <View style={styles.container}>
       {/* Character body */}
@@ -53,6 +97,13 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  spriteContainer: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
   },
   body: {
     width: '80%',

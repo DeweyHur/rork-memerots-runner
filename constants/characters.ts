@@ -2,6 +2,26 @@ import { Character } from "@/types/game";
 
 export const CHARACTERS: Character[] = [
   {
+    id: "tralalero",
+    name: "Tralalero Tralala",
+    description: "The mysterious sprite master",
+    color: "#9B59B6",
+    specialWeapon: "Sprite Magic",
+    specialAbility: "Animation Mastery",
+    image: "https://images.unsplash.com/photo-1516100882582-96c3a05fe590?q=80&w=200&auto=format&fit=crop",
+    sprites: {
+      walk: require('../assets/images/tra_walk.png'),
+      jump: require('../assets/images/tra_jump.png'),
+      fall: require('../assets/images/tra_fall.png'),
+      attack: require('../assets/images/tra_attack.png'),
+    },
+    stats: {
+      speed: 8,
+      power: 7,
+      defense: 5
+    }
+  },
+  {
     id: "gabagool",
     name: "Gabagool",
     description: "Master of the pasta projectiles",
