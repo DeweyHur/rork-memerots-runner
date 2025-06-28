@@ -1,0 +1,104 @@
+{
+  "name": "TypeScript/TSX Class Creation Templates",
+  "description": "Templates and rules for creating new TypeScript/TSX classes with different patterns",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "name": "Create React Component Class",
+      "pattern": {
+        "match": "//\\s*@create-component\\s+([A-Za-z][A-Za-z0-9]*)",
+        "flags": "g"
+      },
+      "replacement": "import React from 'react';\nimport { View, StyleSheet } from 'react-native';\n\ninterface ${1}Props {\n  // Add your props here\n}\n\ninterface ${1}State {\n  // Add your state properties here\n}\n\nexport default class ${1} extends React.Component<${1}Props, ${1}State> {\n  constructor(props: ${1}Props) {\n    super(props);\n    this.state = {\n      // Initialize your state here\n    };\n  }\n\n  componentDidMount(): void {\n    // Add initialization logic here\n  }\n\n  componentWillUnmount(): void {\n    // Add cleanup logic here\n  }\n\n  render(): React.ReactElement {\n    return (\n      <View style={styles.container}>\n        {/* Add your JSX here */}\n      </View>\n    );\n  }\n}\n\nconst styles = StyleSheet.create({\n  container: {\n    // Add your styles here\n  },\n});",
+      "description": "Creates a complete React Native component class with TypeScript interfaces"
+    },
+    {
+      "name": "Create Service Class",
+      "pattern": {
+        "match": "//\\s*@create-service\\s+([A-Za-z][A-Za-z0-9]*)",
+        "flags": "g"
+      },
+      "replacement": "export class ${1}Service {\n  private static instance: ${1}Service;\n\n  private constructor() {\n    // Private constructor for singleton pattern\n  }\n\n  public static getInstance(): ${1}Service {\n    if (!${1}Service.instance) {\n      ${1}Service.instance = new ${1}Service();\n    }\n    return ${1}Service.instance;\n  }\n\n  public async initialize(): Promise<void> {\n    // Add initialization logic here\n  }\n\n  public async cleanup(): Promise<void> {\n    // Add cleanup logic here\n  }\n}",
+      "description": "Creates a service class with singleton pattern"
+    },
+    {
+      "name": "Create Hook Class",
+      "pattern": {
+        "match": "//\\s*@create-hook\\s+([A-Za-z][A-Za-z0-9]*)",
+        "flags": "g"
+      },
+      "replacement": "import { useState, useEffect, useCallback } from 'react';\n\nexport function use${1}() {\n  const [state, setState] = useState<any>(null);\n  const [loading, setLoading] = useState<boolean>(false);\n  const [error, setError] = useState<Error | null>(null);\n\n  const fetchData = useCallback(async () => {\n    try {\n      setLoading(true);\n      setError(null);\n      // Add your data fetching logic here\n      setState(/* your data */);\n    } catch (err) {\n      setError(err as Error);\n    } finally {\n      setLoading(false);\n    }\n  }, []);\n\n  useEffect(() => {\n    fetchData();\n  }, [fetchData]);\n\n  return {\n    state,\n    loading,\n    error,\n    refetch: fetchData,\n  };\n}",
+      "description": "Creates a custom React hook with loading and error states"
+    },
+    {
+      "name": "Create Context Class",
+      "pattern": {
+        "match": "//\\s*@create-context\\s+([A-Za-z][A-Za-z0-9]*)",
+        "flags": "g"
+      },
+      "replacement": "import React, { createContext, useContext, useState, ReactNode } from 'react';\n\ninterface ${1}ContextType {\n  // Add your context properties here\n  state: any;\n  setState: (value: any) => void;\n}\n\nconst ${1}Context = createContext<${1}ContextType | undefined>(undefined);\n\nexport function ${1}Provider({ children }: { children: ReactNode }): React.ReactElement {\n  const [state, setState] = useState<any>(null);\n\n  const value: ${1}ContextType = {\n    state,\n    setState,\n  };\n\n  return (\n    <${1}Context.Provider value={value}>\n      {children}\n    </${1}Context.Provider>\n  );\n}\n\nexport function use${1}(): ${1}ContextType {\n  const context = useContext(${1}Context);\n  if (context === undefined) {\n    throw new Error(`use${1} must be used within a ${1}Provider`);\n  }\n  return context;\n}",
+      "description": "Creates a React context with provider and hook"
+    },
+    {
+      "name": "Create Utility Class",
+      "pattern": {
+        "match": "//\\s*@create-utility\\s+([A-Za-z][A-Za-z0-9]*)",
+        "flags": "g"
+      },
+      "replacement": "export class ${1}Utils {\n  /**\n   * Add your utility methods here\n   */\n  public static formatData(data: any): any {\n    // Add formatting logic here\n    return data;\n  }\n\n  public static validateInput(input: any): boolean {\n    // Add validation logic here\n    return true;\n  }\n\n  public static async processAsync(data: any): Promise<any> {\n    // Add async processing logic here\n    return data;\n  }\n\n  private static helperMethod(): void {\n    // Add private helper methods here\n  }\n}",
+      "description": "Creates a utility class with static methods"
+    },
+    {
+      "name": "Create Model Class",
+      "pattern": {
+        "match": "//\\s*@create-model\\s+([A-Za-z][A-Za-z0-9]*)",
+        "flags": "g"
+      },
+      "replacement": "export interface ${1}Model {\n  id: string;\n  createdAt: Date;\n  updatedAt: Date;\n  // Add your model properties here\n}\n\nexport class ${1} implements ${1}Model {\n  public id: string;\n  public createdAt: Date;\n  public updatedAt: Date;\n\n  constructor(data: Partial<${1}Model>) {\n    this.id = data.id || '';\n    this.createdAt = data.createdAt || new Date();\n    this.updatedAt = data.updatedAt || new Date();\n    // Initialize other properties here\n  }\n\n  public toJSON(): ${1}Model {\n    return {\n      id: this.id,\n      createdAt: this.createdAt,\n      updatedAt: this.updatedAt,\n      // Add other properties here\n    };\n  }\n\n  public static fromJSON(data: any): ${1} {\n    return new ${1}(data);\n  }\n}",
+      "description": "Creates a model class with TypeScript interface and JSON serialization"
+    },
+    {
+      "name": "Create Error Boundary Class",
+      "pattern": {
+        "match": "//\\s*@create-error-boundary\\s+([A-Za-z][A-Za-z0-9]*)",
+        "flags": "g"
+      },
+      "replacement": "import React, { Component, ReactNode } from 'react';\nimport { View, Text, StyleSheet } from 'react-native';\n\ninterface ${1}ErrorBoundaryProps {\n  children: ReactNode;\n  fallback?: ReactNode;\n}\n\ninterface ${1}ErrorBoundaryState {\n  hasError: boolean;\n  error?: Error;\n  errorInfo?: React.ErrorInfo;\n}\n\nexport class ${1}ErrorBoundary extends Component<${1}ErrorBoundaryProps, ${1}ErrorBoundaryState> {\n  constructor(props: ${1}ErrorBoundaryProps) {\n    super(props);\n    this.state = { hasError: false };\n  }\n\n  static getDerivedStateFromError(error: Error): ${1}ErrorBoundaryState {\n    return { hasError: true, error };\n  }\n\n  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {\n    console.error('Error caught by ${1}ErrorBoundary:', error, errorInfo);\n    this.setState({ errorInfo });\n  }\n\n  render(): ReactNode {\n    if (this.state.hasError) {\n      if (this.props.fallback) {\n        return this.props.fallback;\n      }\n\n      return (\n        <View style={styles.errorContainer}>\n          <Text style={styles.errorTitle}>Something went wrong</Text>\n          <Text style={styles.errorMessage}>{this.state.error?.message}</Text>\n        </View>\n      );\n    }\n\n    return this.props.children;\n  }\n}\n\nconst styles = StyleSheet.create({\n  errorContainer: {\n    flex: 1,\n    justifyContent: 'center',\n    alignItems: 'center',\n    padding: 20,\n  },\n  errorTitle: {\n    fontSize: 18,\n    fontWeight: 'bold',\n    marginBottom: 10,\n  },\n  errorMessage: {\n    fontSize: 14,\n    textAlign: 'center',\n  },\n});",
+      "description": "Creates a complete error boundary component"
+    }
+  ],
+  "filePatterns": [
+    "**/*.tsx",
+    "**/*.ts"
+  ],
+  "examples": [
+    {
+      "before": "// @create-component UserProfile",
+      "after": "import React from 'react';\nimport { View, StyleSheet } from 'react-native';\n\ninterface UserProfileProps {\n  // Add your props here\n}\n\ninterface UserProfileState {\n  // Add your state properties here\n}\n\nexport default class UserProfile extends React.Component<UserProfileProps, UserProfileState> {\n  constructor(props: UserProfileProps) {\n    super(props);\n    this.state = {\n      // Initialize your state here\n    };\n  }\n\n  componentDidMount(): void {\n    // Add initialization logic here\n  }\n\n  componentWillUnmount(): void {\n    // Add cleanup logic here\n  }\n\n  render(): React.ReactElement {\n    return (\n      <View style={styles.container}>\n        {/* Add your JSX here */}\n      </View>\n    );\n  }\n}\n\nconst styles = StyleSheet.create({\n  container: {\n    // Add your styles here\n  },\n});"
+    },
+    {
+      "before": "// @create-service ApiService",
+      "after": "export class ApiServiceService {\n  private static instance: ApiServiceService;\n\n  private constructor() {\n    // Private constructor for singleton pattern\n  }\n\n  public static getInstance(): ApiServiceService {\n    if (!ApiServiceService.instance) {\n      ApiServiceService.instance = new ApiServiceService();\n    }\n    return ApiServiceService.instance;\n  }\n\n  public async initialize(): Promise<void> {\n    // Add initialization logic here\n  }\n\n  public async cleanup(): Promise<void> {\n    // Add cleanup logic here\n  }\n}"
+    }
+  ],
+  "notes": [
+    "Use @create-component for React components",
+    "Use @create-service for service classes",
+    "Use @create-hook for custom React hooks",
+    "Use @create-context for React contexts",
+    "Use @create-utility for utility classes",
+    "Use @create-model for data models",
+    "Use @create-error-boundary for error boundaries",
+    "Always customize the generated code for your specific needs",
+    "Add proper TypeScript types and interfaces",
+    "Follow your team's coding conventions"
+  ],
+  "validation": [
+    "Ensure all necessary imports are included",
+    "Check that TypeScript interfaces are properly defined",
+    "Verify that class methods have proper return types",
+    "Test that error boundaries handle errors correctly",
+    "Ensure service classes follow singleton pattern correctly",
+    "Validate that context providers wrap children properly"
+  ]
+} 

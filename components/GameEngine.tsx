@@ -25,13 +25,15 @@ export default function GameEngine() {
   const [projectiles, setProjectiles] = useState<ProjectileType[]>([]);
   const [perks, setPerks] = useState<any[]>([]);
   const [boss, setBoss] = useState<any>(null);
+  const [backgroundPosition, setBackgroundPosition] = useState(0);
+  const [playerY, setPlayerY] = useState(height / 2);
   
   // Animation values
-  const backgroundPosition = useRef(new Animated.Value(0)).current;
-  const playerY = useRef(new Animated.Value(height / 2)).current;
+  const backgroundPositionAnim = useRef(new Animated.Value(0)).current;
+  const playerYAnim = useRef(new Animated.Value(height / 2)).current;
   
   // Game loop
-  const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
+  const gameLoopRef = useRef<number | null>(null);
   const frameCount = useRef(0);
   const lastFireTime = useRef(0);
   const gameSpeed = useRef(5);
@@ -50,6 +52,17 @@ export default function GameEngine() {
       gameLoopRef.current = null;
     }
   }, [gameState.status]);
+  
+  // Listen to player Y animation changes
+  useEffect(() => {
+    const listener = playerYAnim.addListener(({ value }) => {
+      setPlayerY(value);
+    });
+    
+    return () => {
+      playerYAnim.removeListener(listener);
+    };
+  }, []);
   
   // Handle input
   useEffect(() => {
@@ -123,8 +136,10 @@ export default function GameEngine() {
   // Update game state
   const updateGameState = () => {
     // Move background
-    const currentBgPosition = backgroundPosition.getValue();
-    backgroundPosition.setValue((currentBgPosition + gameSpeed.current) % width);
+    const currentBgPosition = backgroundPosition;
+    const newBgPosition = (currentBgPosition + gameSpeed.current) % width;
+    setBackgroundPosition(newBgPosition);
+    backgroundPositionAnim.setValue(newBgPosition);
     
     // Update enemies
     setEnemies(prev => {
@@ -201,12 +216,12 @@ export default function GameEngine() {
     setPlayerState(prev => ({ ...prev, jumping: true }));
     
     Animated.sequence([
-      Animated.timing(playerY, {
+      Animated.timing(playerYAnim, {
         toValue: height / 3,
         duration: 300,
         useNativeDriver: false,
       }),
-      Animated.timing(playerY, {
+      Animated.timing(playerYAnim, {
         toValue: height / 2,
         duration: 300,
         useNativeDriver: false,
@@ -343,7 +358,7 @@ export default function GameEngine() {
       projectileConfig.width = 30;
     }
     
-    const currentPlayerY = playerY.getValue();
+    const currentPlayerY = playerY;
     
     const projectile = {
       id: `projectile-${Date.now()}-${Math.random()}`,
@@ -368,7 +383,7 @@ export default function GameEngine() {
   };
   
   const activatePerk = () => {
-    const currentPlayerY = playerY.getValue();
+    const currentPlayerY = playerY;
     
     // Find the closest perk
     const closestPerk = perks.reduce((closest, perk) => {
@@ -394,7 +409,7 @@ export default function GameEngine() {
   };
   
   const checkCollisions = () => {
-    const currentPlayerY = playerY.getValue();
+    const currentPlayerY = playerY;
     
     // Player hitbox
     const playerHitbox = {
@@ -526,7 +541,7 @@ export default function GameEngine() {
         style={[
           styles.background,
           {
-            transform: [{ translateX: Animated.multiply(backgroundPosition, -1) }],
+            transform: [{ translateX: Animated.multiply(backgroundPositionAnim, -1) }],
           },
         ]}
       >

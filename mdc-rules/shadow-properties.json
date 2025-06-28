@@ -1,0 +1,53 @@
+{
+  "name": "Replace deprecated shadow properties with boxShadow",
+  "description": "Converts shadowColor, shadowOffset, shadowOpacity, and shadowRadius to modern boxShadow CSS property",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "name": "Convert shadow properties to boxShadow",
+      "pattern": {
+        "match": "shadowColor:\\s*['\"]([^'\"]+)['\"],\\s*shadowOffset:\\s*\\{\\s*width:\\s*([^,]+),\\s*height:\\s*([^}]+)\\s*\\},\\s*shadowOpacity:\\s*([^,]+),\\s*shadowRadius:\\s*([^,]+)",
+        "flags": "g"
+      },
+      "replacement": "boxShadow: '${4}px ${5}px ${6}px rgba(0, 0, 0, ${7})'",
+      "description": "Converts standard shadow properties to boxShadow with black color"
+    },
+    {
+      "name": "Convert shadow properties with custom colors",
+      "pattern": {
+        "match": "shadowColor:\\s*([^,]+),\\s*shadowOffset:\\s*\\{\\s*width:\\s*([^,]+),\\s*height:\\s*([^}]+)\\s*\\},\\s*shadowOpacity:\\s*([^,]+),\\s*shadowRadius:\\s*([^,]+)",
+        "flags": "g"
+      },
+      "replacement": "boxShadow: '${4}px ${5}px ${6}px ${1}'",
+      "description": "Converts shadow properties to boxShadow preserving custom colors"
+    }
+  ],
+  "filePatterns": [
+    "**/*.tsx",
+    "**/*.ts", 
+    "**/*.jsx",
+    "**/*.js"
+  ],
+  "examples": [
+    {
+      "before": "shadowColor: '#000',\nshadowOffset: { width: 0, height: 2 },\nshadowOpacity: 0.1,\nshadowRadius: 4,",
+      "after": "boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',"
+    },
+    {
+      "before": "shadowColor: Colors.text,\nshadowOffset: { width: 0, height: 0 },\nshadowOpacity: 0.8,\nshadowRadius: 5,",
+      "after": "boxShadow: '0px 0px 5px Colors.text',"
+    }
+  ],
+  "notes": [
+    "This rule automatically converts deprecated React Native shadow properties to modern CSS boxShadow",
+    "The boxShadow property works better across platforms, especially on web",
+    "For custom colors, the rule attempts to preserve the original color value",
+    "Always test the visual appearance after applying this rule",
+    "Consider platform-specific styling if needed (elevation for Android)"
+  ],
+  "validation": [
+    "Ensure boxShadow values are properly formatted",
+    "Check that color values are preserved correctly", 
+    "Verify visual appearance matches original design"
+  ]
+} 

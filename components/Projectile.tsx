@@ -32,10 +32,7 @@ const styles = StyleSheet.create({
   },
   powered: {
     borderWidth: 2,
-    shadowColor: Colors.text,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 5,
+    boxShadow: `0px 0px 5px ${Colors.text}`,
     elevation: 5,
   },
 });

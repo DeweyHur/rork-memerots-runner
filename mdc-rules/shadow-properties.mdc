@@ -1,0 +1,86 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# MDC Rule: Replace Deprecated Shadow Properties
+# This rule automatically converts deprecated React Native shadow* properties to modern boxShadow
+
+name: "Replace deprecated shadow properties with boxShadow"
+description: "Converts shadowColor, shadowOffset, shadowOpacity, and shadowRadius to modern boxShadow CSS property"
+
+# Pattern to match deprecated shadow properties
+pattern: |
+  shadowColor: ['"](mdc:[^'"]+)['"],
+  shadowOffset: \{ width: ([^,]+), height: ([^}]+) \},
+  shadowOpacity: ([^,]+),w
+  shadowRadius: ([^,]+)
+
+# Replacement with modern boxShadow
+replacement: |
+  boxShadow: '${4}px ${5}px ${6}px rgba(0, 0, 0, ${7})'
+
+# Alternative pattern for shadowColor with custom colors
+pattern2: |
+  shadowColor: ([^,]+),
+  shadowOffset: \{ width: ([^,]+), height: ([^}]+) \},
+  shadowOpacity: ([^,]+),
+  shadowRadius: ([^,]+)
+
+# Replacement for custom colors
+replacement2: |
+  boxShadow: '${4}px ${5}px ${6}px ${1}'
+
+# Pattern for simple shadow properties (when not all are present)
+pattern3: |
+  shadowColor: ['"](mdc:[^'"]+)['"],
+  shadowOffset: \{ width: ([^,]+), height: ([^}]+) \},
+  shadowOpacity: ([^,]+),
+  shadowRadius: ([^,]+)
+
+# Replacement for simple shadows
+replacement3: |
+  boxShadow: '${4}px ${5}px ${6}px ${1}'
+
+# File patterns to apply this rule to
+files:
+  - "**/*.tsx"
+  - "**/*.ts"
+  - "**/*.jsx"
+  - "**/*.js"
+
+# Examples of what this rule fixes:
+examples:
+  before: |
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  
+  after: |
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
+
+# Additional examples
+examples2:
+  before: |
+    shadowColor: Colors.text,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 5,
+  
+  after: |
+    boxShadow: '0px 0px 5px Colors.text'
+
+# Notes for developers
+notes: |
+  - This rule automatically converts deprecated React Native shadow properties to modern CSS boxShadow
+  - The boxShadow property works better across platforms, especially on web
+  - For custom colors, the rule attempts to preserve the original color value
+  - Always test the visual appearance after applying this rule
+  - Consider platform-specific styling if needed (elevation for Android)
+
+# Validation
+validation:
+  - "Ensure boxShadow values are properly formatted"
+  - "Check that color values are preserved correctly"
+  - "Verify visual appearance matches original design"

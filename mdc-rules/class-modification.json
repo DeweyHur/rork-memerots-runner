@@ -1,0 +1,111 @@
+{
+  "name": "TypeScript/TSX Class Modification and Creation",
+  "description": "Rules for modifying existing classes or creating new classes in TypeScript/TSX files",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "name": "Add interface to existing class",
+      "pattern": {
+        "match": "export\\s+default\\s+class\\s+([A-Za-z][A-Za-z0-9]*)\\s*\\{",
+        "flags": "g"
+      },
+      "replacement": "interface ${1}Props {\n  // Add your props here\n}\n\nexport default class ${1} extends React.Component<${1}Props> {",
+      "description": "Adds TypeScript interface and extends React.Component for existing classes"
+    },
+    {
+      "name": "Convert function component to class component",
+      "pattern": {
+        "match": "export\\s+default\\s+function\\s+([A-Za-z][A-Za-z0-9]*)\\s*\\(([^)]*)\\)\\s*\\{",
+        "flags": "g"
+      },
+      "replacement": "interface ${1}Props {\n  // Add your props here\n}\n\nexport default class ${1} extends React.Component<${1}Props> {\n  render() {",
+      "description": "Converts function components to class components with TypeScript interfaces"
+    },
+    {
+      "name": "Add constructor to class",
+      "pattern": {
+        "match": "export\\s+default\\s+class\\s+([A-Za-z][A-Za-z0-9]*)\\s*\\{",
+        "flags": "g"
+      },
+      "replacement": "export default class ${1} {\n  constructor(props: any) {\n    super(props);\n    // Initialize your state here\n  }",
+      "description": "Adds constructor to existing classes"
+    },
+    {
+      "name": "Add state interface and initialization",
+      "pattern": {
+        "match": "export\\s+default\\s+class\\s+([A-Za-z][A-Za-z0-9]*)\\s+extends\\s+React\\.Component",
+        "flags": "g"
+      },
+      "replacement": "interface ${1}State {\n  // Add your state properties here\n}\n\nexport default class ${1} extends React.Component<${1}Props, ${1}State>",
+      "description": "Adds state interface and proper typing to React components"
+    },
+    {
+      "name": "Add lifecycle methods",
+      "pattern": {
+        "match": "export\\s+default\\s+class\\s+([A-Za-z][A-Za-z0-9]*)\\s+extends\\s+React\\.Component",
+        "flags": "g"
+      },
+      "replacement": "export default class ${1} extends React.Component<${1}Props, ${1}State> {\n  componentDidMount() {\n    // Add initialization logic here\n  }\n\n  componentWillUnmount() {\n    // Add cleanup logic here\n  }",
+      "description": "Adds common lifecycle methods to React components"
+    },
+    {
+      "name": "Create new class template",
+      "pattern": {
+        "match": "//\\s*TODO:\\s*Create\\s+new\\s+class\\s+([A-Za-z][A-Za-z0-9]*)",
+        "flags": "g"
+      },
+      "replacement": "interface ${1}Props {\n  // Add your props here\n}\n\ninterface ${1}State {\n  // Add your state properties here\n}\n\nexport default class ${1} extends React.Component<${1}Props, ${1}State> {\n  constructor(props: ${1}Props) {\n    super(props);\n    this.state = {\n      // Initialize your state here\n    };\n  }\n\n  componentDidMount() {\n    // Add initialization logic here\n  }\n\n  componentWillUnmount() {\n    // Add cleanup logic here\n  }\n\n  render() {\n    return (\n      <div>\n        {/* Add your JSX here */}\n      </div>\n    );\n  }\n}",
+      "description": "Creates a complete new class component template from TODO comments"
+    },
+    {
+      "name": "Add method to existing class",
+      "pattern": {
+        "match": "export\\s+default\\s+class\\s+([A-Za-z][A-Za-z0-9]*)\\s*\\{",
+        "flags": "g"
+      },
+      "replacement": "export default class ${1} {\n  // Add your methods here\n  private handleClick = (): void => {\n    // Add click handler logic\n  };\n\n  private handleSubmit = (event: React.FormEvent): void => {\n    event.preventDefault();\n    // Add submit handler logic\n  };",
+      "description": "Adds common method templates to existing classes"
+    },
+    {
+      "name": "Add error boundary wrapper",
+      "pattern": {
+        "match": "export\\s+default\\s+class\\s+([A-Za-z][A-Za-z0-9]*)\\s+extends\\s+React\\.Component",
+        "flags": "g"
+      },
+      "replacement": "interface ${1}State {\n  hasError: boolean;\n  error?: Error;\n}\n\nexport default class ${1} extends React.Component<${1}Props, ${1}State> {\n  constructor(props: ${1}Props) {\n    super(props);\n    this.state = { hasError: false };\n  }\n\n  static getDerivedStateFromError(error: Error): ${1}State {\n    return { hasError: true, error };\n  }\n\n  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {\n    console.error('Error caught by ${1}:', error, errorInfo);\n  }",
+      "description": "Converts component to error boundary with proper error handling"
+    }
+  ],
+  "filePatterns": [
+    "**/*.tsx",
+    "**/*.ts"
+  ],
+  "examples": [
+    {
+      "before": "export default class MyComponent {",
+      "after": "interface MyComponentProps {\n  // Add your props here\n}\n\nexport default class MyComponent extends React.Component<MyComponentProps> {"
+    },
+    {
+      "before": "export default function MyComponent(props) {",
+      "after": "interface MyComponentProps {\n  // Add your props here\n}\n\nexport default class MyComponent extends React.Component<MyComponentProps> {\n  render() {"
+    },
+    {
+      "before": "// TODO: Create new class UserProfile",
+      "after": "interface UserProfileProps {\n  // Add your props here\n}\n\ninterface UserProfileState {\n  // Add your state properties here\n}\n\nexport default class UserProfile extends React.Component<UserProfileProps, UserProfileState> {\n  constructor(props: UserProfileProps) {\n    super(props);\n    this.state = {\n      // Initialize your state here\n    };\n  }\n\n  componentDidMount() {\n    // Add initialization logic here\n  }\n\n  componentWillUnmount() {\n    // Add cleanup logic here\n  }\n\n  render() {\n    return (\n      <div>\n        {/* Add your JSX here */}\n      </div>\n    );\n  }\n}"
+    }
+  ],
+  "notes": [
+    "These rules help with TypeScript/TSX class component development",
+    "Always review generated code and customize as needed",
+    "Consider using functional components with hooks for simpler cases",
+    "Add proper prop validation and error handling",
+    "Follow your team's coding conventions and patterns"
+  ],
+  "validation": [
+    "Ensure all imports are properly added (React, etc.)",
+    "Check that TypeScript interfaces are properly defined",
+    "Verify that state initialization matches the interface",
+    "Test that lifecycle methods are appropriate for the use case",
+    "Ensure error boundaries are properly implemented"
+  ]
+} 
