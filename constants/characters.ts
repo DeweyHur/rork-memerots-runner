@@ -2,112 +2,59 @@
 import Papa from 'papaparse';
 import { Character } from "@/types/game";
 import { Platform } from 'react-native';
+import charactersJson from './characters-data.json';
 
 // Default characters as fallback
 const DEFAULT_CHARACTERS: Character[] = [
   {
-    id: '1',
-    name: 'Tra',
-    description: 'The main protagonist',
+    id: '0',
+    name: '아레스1',
+    description: 'The mighty warrior of Karion',
     color: '#FF6B6B',
-    specialWeapon: 'Rapid Fire',
-    specialAbility: 'Double Jump',
-    image: '/assets/images/characters.png',
+    specialWeapon: 'Sword of Ares',
+    specialAbility: 'Battle Fury',
+    image: require('../assets/images/characters.png'),
     sprites: {
-      walk: [],
-      jump: [],
-      fall: [],
-      attack: []
+      down: [],
+      up: [],
+      left: [],
+      right: [],
+      hit: [],
+      dead: []
     },
-    stats: { speed: 8, power: 6, defense: 5 }
+    stats: { speed: 9, power: 5, defense: 38 }
   },
   {
-    id: '2',
-    name: 'Chef',
-    description: 'Master of the kitchen',
+    id: '1',
+    name: '에레인',
+    description: 'The swift archer of Severt',
     color: '#4ECDC4',
-    specialWeapon: 'Flying Pan',
-    specialAbility: 'Food Shield',
-    image: '/assets/images/characters.png',
+    specialWeapon: 'Precision Bow',
+    specialAbility: 'Quick Shot',
+    image: require('../assets/images/characters.png'),
     sprites: {
-      walk: [],
-      jump: [],
-      fall: [],
-      attack: []
+      down: [],
+      up: [],
+      left: [],
+      right: [],
+      hit: [],
+      dead: []
     },
-    stats: { speed: 5, power: 8, defense: 7 }
-  },
-  {
-    id: '3',
-    name: 'Barista',
-    description: 'Coffee-powered runner',
-    color: '#6B9EFF',
-    specialWeapon: 'Steam Blast',
-    specialAbility: 'Caffeine Boost',
-    image: '/assets/images/characters.png',
-    sprites: {
-      walk: [],
-      jump: [],
-      fall: [],
-      attack: []
-    },
-    stats: { speed: 7, power: 5, defense: 6 }
-  },
-  {
-    id: '4',
-    name: 'Waiter',
-    description: 'Agile and quick',
-    color: '#FFE66D',
-    specialWeapon: 'Plate Throw',
-    specialAbility: 'Quick Step',
-    image: '/assets/images/characters.png',
-    sprites: {
-      walk: [],
-      jump: [],
-      fall: [],
-      attack: []
-    },
-    stats: { speed: 9, power: 4, defense: 4 }
+    stats: { speed: 8, power: 10, defense: 40 }
   }
 ];
 
-// Loads and parses the CSV and JSON, returning the character array
+// Loads and parses the JSON, returning the character array
 export async function loadCharacters(): Promise<Character[]> {
-  console.log('🔄 Starting character loading...');
   try {
-    let csvText: string;
-    let spriteJson: any;
-
-    if (Platform.OS === 'web') {
-      console.log('🌐 Loading characters for web platform...');
-      // Load CSV
-      csvText = await fetch('/assets/images/characters.csv').then(res => res.text());
-      console.log('✅ CSV loaded successfully');
-      // Load JSON
-      spriteJson = await fetch('/assets/images/characters.json').then(res => res.json());
-      console.log('✅ JSON loaded successfully');
-    } else {
-      console.log('📱 Loading characters for native platform...');
-      // For native platforms, we'll need to handle this differently
-      // For now, let's use a fallback approach
-      try {
-        // Try to fetch from the local assets
-        csvText = await fetch('/assets/images/characters.csv').then(res => res.text());
-        spriteJson = await fetch('/assets/images/characters.json').then(res => res.json());
-        console.log('✅ Native assets loaded successfully');
-      } catch (error) {
-        console.warn('⚠️ Could not load character assets:', error);
-        console.log('🔄 Using default characters as fallback');
-        // Return default characters as fallback
-        return DEFAULT_CHARACTERS;
-      }
-    }
-
-    const { data: rows } = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-    console.log(`📊 Parsed ${rows.length} character rows from CSV`);
-
-    // Build a map from spriteJson frames
-    const spriteFrames = spriteJson.frames || spriteJson; // handle both array or object
+    console.log('🔄 Loading characters from JSON...');
+    // Use the imported JSON directly
+    const spriteJson = charactersJson;
+    console.log('📄 JSON structure:', Object.keys(spriteJson));
+    
+    const spriteFrames = spriteJson.textures?.[0]?.frames || [];
+    console.log('🎬 Total sprite frames found:', spriteFrames?.length || 0);
+    
     const framesByChar: Record<string, any[]> = {};
     for (const frame of spriteFrames) {
       const match = frame.filename.match(/^out\/(\d+)\/(\w+)_([0-9]+)/);
@@ -116,49 +63,78 @@ export async function loadCharacters(): Promise<Character[]> {
       if (!framesByChar[charIdx]) framesByChar[charIdx] = [];
       framesByChar[charIdx].push({ action, frameIdx: Number(frameIdx), ...frame });
     }
-
-    // Group frames by action and sort by frameIdx
-    const getActionFrames = (charIdx: string, action: string) => {
-      return (framesByChar[charIdx] || [])
-        .filter(f => f.action === action)
-        .sort((a, b) => a.frameIdx - b.frameIdx);
-    };
-
-    // Map CSV rows to Character objects
-    const characters: Character[] = rows.map((row: any, i: number) => {
-      const id = row.no || String(i);
-      const name = row.name;
-      // Map stats as needed (customize as per your Character type)
-      const stats = {
-        speed: Number(row.hr) || 5,
-        power: Number(row.ad) || 5,
-        defense: Number(row.df) || 5,
-      };
-      // Map sprite actions
-      const actions = ['down', 'up', 'left', 'right', 'attack', 'jump', 'fall', 'hit', 'dead'];
+    
+    console.log('👥 Characters found in JSON:', Object.keys(framesByChar));
+    console.log('📊 Frames per character:', Object.fromEntries(
+      Object.entries(framesByChar).map(([char, frames]) => [char, frames.length])
+    ));
+    // Use 아레스1 (0), 에레인 (1), and enemy characters (149-168)
+    const playerIds = ['0', '1'];
+    const enemyIds = ['149', '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', '161', '163', '164', '166', '167', '168'];
+    const allIds = [...playerIds, ...enemyIds];
+    
+    const characters: Character[] = allIds.map((id) => {
+      const isPlayer = playerIds.includes(id);
+      const isEnemy = enemyIds.includes(id);
+      
+      // Default name and stats
+      let name = `Character ${id}`;
+      let stats = { speed: 5, power: 3, defense: 20 };
+      
+      if (isPlayer) {
+        name = id === '0' ? '아레스1' : '에레인';
+        stats = id === '0'
+          ? { speed: 9, power: 5, defense: 38 }
+          : { speed: 8, power: 10, defense: 40 };
+      } else if (isEnemy) {
+        name = `Enemy ${id}`;
+        stats = { speed: 3, power: 2, defense: 15 };
+      }
+      
       const sprites: any = {};
+      const actions = ['down', 'up', 'left', 'right', 'hit', 'dead'];
       actions.forEach(action => {
-        const frames = getActionFrames(id, action);
-        if (frames.length) sprites[action] = frames;
+        const frames = (framesByChar[id] || []).filter(f => f.action === action);
+        sprites[action] = frames;
       });
+      
+      const characterData = {
+        0: {
+          color: '#FF6B6B',
+          description: 'The mighty warrior of Karion',
+          specialWeapon: 'Sword of Ares',
+          specialAbility: 'Battle Fury'
+        },
+        1: {
+          color: '#4ECDC4',
+          description: 'The swift archer of Severt',
+          specialWeapon: 'Precision Bow',
+          specialAbility: 'Quick Shot'
+        }
+      };
+      
+      const charData = characterData[id as '0' | '1'] || {
+        color: '#666666',
+        description: isEnemy ? 'A dangerous enemy' : 'A mysterious character',
+        specialWeapon: 'Basic Attack',
+        specialAbility: 'Standard Move'
+      };
+      
       return {
         id,
         name,
-        description: '', // Optionally add
-        color: '#fff', // Optionally map from team or other field
-        specialWeapon: '',
-        specialAbility: '',
-        image: '/assets/images/characters.png', // Use path string instead of require
+        description: charData.description,
+        color: charData.color,
+        specialWeapon: charData.specialWeapon,
+        specialAbility: charData.specialAbility,
+        image: require('../assets/images/characters.png'),
         sprites,
         stats,
       };
     });
-    console.log(`🎮 Successfully loaded ${characters.length} characters from CSV/JSON`);
     return characters;
   } catch (error) {
-    console.warn('❌ Error loading characters from CSV/JSON:', error);
-    console.log('🔄 Using default characters as fallback');
-    // Return default characters as fallback
+    console.warn('❌ Error loading characters from JSON:', error);
     return DEFAULT_CHARACTERS;
   }
 }

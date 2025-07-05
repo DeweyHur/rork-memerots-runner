@@ -1,12 +1,38 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Colors from '@/constants/colors';
+import SpriteAnimation from './SpriteAnimation';
 
 interface EnemyProps {
   type: string;
+  characterId?: string;
+  sprites?: any;
+  image?: any;
 }
 
-export default function Enemy({ type }: EnemyProps) {
+export default function Enemy({ type, characterId, sprites, image }: EnemyProps) {
+  // If we have sprite data, use sprite animation
+  if (sprites && image) {
+    // Use 'left' action for enemies (walking animation)
+    const spriteFrames = sprites.left || sprites.down || sprites.right || sprites.up;
+    
+    if (spriteFrames && spriteFrames.length > 0) {
+      return (
+        <View style={styles.container}>
+          <View style={styles.spriteContainer}>
+            <SpriteAnimation
+              spriteFrames={spriteFrames}
+              imageSource={image}
+              frameRate={200}
+              isPlaying={true}
+            />
+          </View>
+        </View>
+      );
+    }
+  }
+  
+  // Fallback to original geometric design
   const getEnemyStyle = () => {
     switch (type) {
       case 'small':
@@ -59,6 +85,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: Colors.text,
+  },
+  spriteContainer: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'visible',
   },
   eyesContainer: {
     flexDirection: 'row',

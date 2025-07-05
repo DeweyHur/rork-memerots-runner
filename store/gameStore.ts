@@ -8,68 +8,40 @@ import { loadCharacters, STAGES } from '@/constants/characters';
 // Default characters to prevent infinite loading
 const DEFAULT_CHARACTERS: Character[] = [
   {
-    id: '1',
-    name: 'Tra',
-    description: 'The main protagonist',
+    id: '0',
+    name: '아레스1',
+    description: 'The mighty warrior of Karion',
     color: '#FF6B6B',
-    specialWeapon: 'Rapid Fire',
-    specialAbility: 'Double Jump',
-    image: '/assets/images/characters.png',
+    specialWeapon: 'Sword of Ares',
+    specialAbility: 'Battle Fury',
+    image: require('../assets/images/characters.png'),
     sprites: {
-      walk: [],
-      jump: [],
-      fall: [],
-      attack: []
+      down: [],
+      up: [],
+      left: [],
+      right: [],
+      hit: [],
+      dead: []
     },
-    stats: { speed: 8, power: 6, defense: 5 }
+    stats: { speed: 9, power: 5, defense: 38 }
   },
   {
-    id: '2',
-    name: 'Chef',
-    description: 'Master of the kitchen',
+    id: '1',
+    name: '에레인',
+    description: 'The swift archer of Severt',
     color: '#4ECDC4',
-    specialWeapon: 'Flying Pan',
-    specialAbility: 'Food Shield',
-    image: '/assets/images/characters.png',
+    specialWeapon: 'Precision Bow',
+    specialAbility: 'Quick Shot',
+    image: require('../assets/images/characters.png'),
     sprites: {
-      walk: [],
-      jump: [],
-      fall: [],
-      attack: []
+      down: [],
+      up: [],
+      left: [],
+      right: [],
+      hit: [],
+      dead: []
     },
-    stats: { speed: 5, power: 8, defense: 7 }
-  },
-  {
-    id: '3',
-    name: 'Barista',
-    description: 'Coffee-powered runner',
-    color: '#6B9EFF',
-    specialWeapon: 'Steam Blast',
-    specialAbility: 'Caffeine Boost',
-    image: '/assets/images/characters.png',
-    sprites: {
-      walk: [],
-      jump: [],
-      fall: [],
-      attack: []
-    },
-    stats: { speed: 7, power: 5, defense: 6 }
-  },
-  {
-    id: '4',
-    name: 'Waiter',
-    description: 'Agile and quick',
-    color: '#FFE66D',
-    specialWeapon: 'Plate Throw',
-    specialAbility: 'Quick Step',
-    image: '/assets/images/characters.png',
-    sprites: {
-      walk: [],
-      jump: [],
-      fall: [],
-      attack: []
-    },
-    stats: { speed: 9, power: 4, defense: 4 }
+    stats: { speed: 8, power: 10, defense: 40 }
   }
 ];
 
@@ -138,16 +110,27 @@ export const useGameStore = create<GameStore>()(
               setTimeout(() => reject(new Error('Character loading timeout')), 10000)
             );
             
+            console.log('🔄 GameStore: Calling loadCharacters()...');
             const chars = await Promise.race([
               loadCharacters(),
               timeoutPromise
             ]);
             
             console.log('✅ GameStore: Characters loaded successfully:', chars.length);
+            console.log('📋 GameStore: Character details:', chars.map(c => ({ 
+              id: c.id, 
+              name: c.name, 
+              hasSprites: !!c.sprites,
+              spriteKeys: c.sprites ? Object.keys(c.sprites) : [],
+              spriteCounts: c.sprites ? Object.fromEntries(
+                Object.entries(c.sprites).map(([key, value]) => [key, Array.isArray(value) ? value.length : 0])
+              ) : {}
+            })));
             set({ characters: chars, charactersLoading: false });
           } catch (error) {
             console.error('❌ GameStore: Error loading characters:', error);
             // Keep default characters and set loading to false
+            console.log('🔄 GameStore: Using default characters as fallback');
             set({ characters: DEFAULT_CHARACTERS, charactersLoading: false });
           }
         },

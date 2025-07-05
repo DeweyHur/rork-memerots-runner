@@ -7,10 +7,12 @@ export interface Character {
   specialAbility: string;
   image: string;
   sprites?: {
-    walk: any;
-    jump: any;
-    fall: any;
-    attack: any;
+    down: any;
+    up: any;
+    left: any;
+    right: any;
+    hit: any;
+    dead: any;
   };
   stats: {
     speed: number;
@@ -53,6 +55,16 @@ export interface Enemy {
   height: number;
   health: number;
   speed: number;
+  characterId?: string;
+  sprites?: {
+    down: any;
+    up: any;
+    left: any;
+    right: any;
+    hit: any;
+    dead: any;
+  };
+  image?: any;
 }
 
 export interface Projectile {

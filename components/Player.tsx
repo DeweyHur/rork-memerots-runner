@@ -20,44 +20,58 @@ export default function Player({ character, state, shielded }: PlayerProps) {
   
   // If character has sprites, use them
   if (character.sprites) {
-    let spriteSource;
+    let spriteFrames;
     let isPlaying = true;
     
     // Determine which sprite to use based on state
     if (state.jumping) {
-      spriteSource = character.sprites.jump;
+      spriteFrames = character.sprites.up; // Use up sprites for jumping
     } else if (state.crouching) {
-      spriteSource = character.sprites.fall; // Use fall sprite for crouching
+      spriteFrames = character.sprites.left; // Use left sprites for crouching
     } else if (state.dashing || state.avoiding) {
-      spriteSource = character.sprites.attack; // Use attack sprite for dashing/avoiding
+      spriteFrames = character.sprites.right; // Use right sprites for dashing/avoiding
     } else {
-      spriteSource = character.sprites.walk;
+      spriteFrames = character.sprites.down; // Use down sprites for walking
     }
     
-    return (
-      <View style={styles.container}>
-        <View style={styles.spriteContainer}>
-          <SpriteAnimation
-            spriteSheet={spriteSource}
-            columns={4}
-            rows={1}
-            frameRate={150}
-            isPlaying={isPlaying}
-            style={{
-              transform: [
-                { scaleY: state.crouching ? 0.7 : 1 },
-                { scaleX: state.avoiding ? -1 : 1 }, // Flip horizontally when avoiding
-              ],
-            }}
-          />
+    console.log('🎮 Player sprite selection:', {
+      character: character.name,
+      state,
+      selectedAction: state.jumping ? 'up' : state.crouching ? 'left' : state.dashing || state.avoiding ? 'right' : 'down',
+      spriteFramesCount: spriteFrames ? spriteFrames.length : 0,
+      hasImage: !!character.image
+    });
+    
+    // Only render if we have sprite frames
+    if (spriteFrames && spriteFrames.length > 0) {
+      return (
+        <View style={styles.container}>
+          <View style={styles.spriteContainer}>
+            <SpriteAnimation
+              spriteFrames={spriteFrames}
+              imageSource={character.image}
+              frameRate={150}
+              isPlaying={isPlaying}
+              style={{
+                transform: [
+                  { scaleY: state.crouching ? 0.7 : 1 },
+                  { scaleX: state.avoiding ? -1 : 1 }, // Flip horizontally when avoiding
+                ],
+              }}
+            />
+          </View>
+          
+          {/* Shield effect */}
+          {shielded && (
+            <View style={styles.shield} />
+          )}
         </View>
-        
-        {/* Shield effect */}
-        {shielded && (
-          <View style={styles.shield} />
-        )}
-      </View>
-    );
+      );
+    } else {
+      console.log('❌ Player: No sprite frames for action, using fallback');
+    }
+  } else {
+    console.log('❌ Player: No sprites object found');
   }
   
   // Fallback to original geometric design if no sprites
@@ -103,7 +117,7 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'hidden',
+    overflow: 'visible', // Changed from 'hidden' to 'visible'
   },
   body: {
     width: '80%',

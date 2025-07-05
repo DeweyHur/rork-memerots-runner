@@ -15,7 +15,7 @@ import { Enemy as EnemyType, Projectile as ProjectileType } from '@/types/game';
 const { width, height } = Dimensions.get('window');
 
 export default function GameEngine() {
-  const { gameState, selectedCharacter, updateScore, updateHealth, updateDistance, addPerk, activateBoss, updateBossHealth, advanceStage } = useGameStore();
+  const { gameState, selectedCharacter, characters, updateScore, updateHealth, updateDistance, addPerk, activateBoss, updateBossHealth, advanceStage } = useGameStore();
   const { inputState, panResponder } = useGameInput();
   
   // Game state
@@ -275,18 +275,46 @@ export default function GameEngine() {
   
   // Game mechanics
   const spawnEnemy = () => {
-    const enemyTypes = ['small', 'medium', 'large'];
-    const type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+    // Get enemy characters from the store
+    const enemyCharacters = characters.filter(char => 
+      ['149', '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', '161', '163', '164', '166', '167', '168'].includes(char.id)
+    );
+    
+    if (enemyCharacters.length === 0) {
+      // Fallback to old system if no enemy characters loaded
+      const enemyTypes = ['small', 'medium', 'large'];
+      const type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+      
+      const enemy = {
+        id: `enemy-${Date.now()}-${Math.random()}`,
+        type,
+        x: width + 100,
+        y: Math.random() * (height * 0.6) + (height * 0.2),
+        width: type === 'small' ? 30 : type === 'medium' ? 50 : 70,
+        height: type === 'small' ? 30 : type === 'medium' ? 50 : 70,
+        health: type === 'small' ? 1 : type === 'medium' ? 2 : 3,
+        speed: type === 'small' ? 3 : type === 'medium' ? 2 : 1,
+      };
+      
+      setEnemies(prev => [...prev, enemy]);
+      return;
+    }
+    
+    // Select a random enemy character
+    const selectedEnemy = enemyCharacters[Math.floor(Math.random() * enemyCharacters.length)];
     
     const enemy = {
       id: `enemy-${Date.now()}-${Math.random()}`,
-      type,
+      type: 'sprite',
+      characterId: selectedEnemy.id,
+      sprites: selectedEnemy.sprites,
+      image: selectedEnemy.image,
       x: width + 100,
       y: Math.random() * (height * 0.6) + (height * 0.2),
-      width: type === 'small' ? 30 : type === 'medium' ? 50 : 70,
-      height: type === 'small' ? 30 : type === 'medium' ? 50 : 70,
-      health: type === 'small' ? 1 : type === 'medium' ? 2 : 3,
-      speed: type === 'small' ? 3 : type === 'medium' ? 2 : 1,
+      width: 60, // Standard size for sprite enemies
+      height: 60,
+      health: 2,
+      speed: 2,
     };
     
     setEnemies(prev => [...prev, enemy]);
@@ -583,7 +611,12 @@ export default function GameEngine() {
             },
           ]}
         >
-          <Enemy type={enemy.type} />
+          <Enemy 
+            type={enemy.type} 
+            characterId={enemy.characterId}
+            sprites={enemy.sprites}
+            image={enemy.image}
+          />
         </View>
       ))}
       

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -21,13 +21,9 @@ export default function CharacterSelectScreen() {
     console.log('📊 Current characters:', characters.length);
     console.log('⏳ Characters loading:', charactersLoading);
     
-    // Only load characters if we don't have any and we're not already loading
-    if (characters.length === 0 && !charactersLoading) {
-      console.log('🔄 Loading characters...');
-      loadCharactersAsync();
-    } else {
-      console.log('✅ Characters already available or loading');
-    }
+    // Always load characters to ensure we get the proper ones with sprites
+    console.log('🔄 Loading characters...');
+    loadCharactersAsync();
   }, []);
 
   const handleSelectCharacter = (character: any) => {
@@ -45,6 +41,57 @@ export default function CharacterSelectScreen() {
       console.warn('⚠️ No character selected!');
       return;
     }
+
+    // Find the selected character
+    const selectedCharacter = characters.find(c => c.id === selectedCharacterId);
+    if (!selectedCharacter) {
+      console.error('❌ Selected character not found!');
+      return;
+    }
+
+    // Validate sprite loading
+    console.log('🔍 Validating sprite loading for character:', selectedCharacter.name);
+    
+    if (!selectedCharacter.sprites) {
+      console.error('❌ Character has no sprites object');
+      Alert.alert(
+        'Sprite Loading Error',
+        `${selectedCharacter.name} has no sprite data loaded. Please try again.`,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // Check each required action has at least one frame
+    const requiredActions = ['left', 'right', 'up', 'down', 'hit', 'dead'] as const;
+    const missingActions: string[] = [];
+    const spriteStatus: Record<string, number> = {};
+
+    for (const action of requiredActions) {
+      const frames = selectedCharacter.sprites[action];
+      const frameCount = frames && Array.isArray(frames) ? frames.length : 0;
+      spriteStatus[action] = frameCount;
+      
+      console.log(`🎬 ${action}: ${frameCount} frames`);
+      
+      if (frameCount === 0) {
+        missingActions.push(action);
+      }
+    }
+
+    console.log('📊 Sprite validation summary:', spriteStatus);
+
+    if (missingActions.length > 0) {
+      console.error('❌ Missing sprite frames for actions:', missingActions);
+      Alert.alert(
+        'Sprite Loading Error',
+        `${selectedCharacter.name} is missing sprite frames for: ${missingActions.join(', ')}\n\nPlease try reloading the game.`,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    console.log('✅ Sprite validation passed! All actions have frames loaded.');
 
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

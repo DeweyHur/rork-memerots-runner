@@ -191,3 +191,19 @@ After applying the rules, verify:
 - Always customize generated code for your specific needs
 - Follow your team's coding conventions and patterns
 - Consider using functional components with hooks for simpler cases 
+
+## Character Sprite Actions
+
+**Valid sprite action names for all character sprite data:**
+
+- `left`
+- `right`
+- `up`
+- `down`
+- `hit`
+- `dead`
+
+> **Warning:**
+> Do NOT use or map to `walk`, `jump`, `fall`, or `attack` in code or data. These do not exist in the sprite JSON and will break animation loading.
+
+Always use the above 6 actions when referencing or loading character sprites. 
