@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useGameStore } from '@/store/gameStore';
 import Colors from '@/constants/colors';
 import { PERKS } from '@/constants/characters';
-import { Shield, Zap, Copy } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 
 export default function GameHUD() {
   const { gameState, selectedCharacter } = useGameStore();
@@ -15,11 +15,11 @@ export default function GameHUD() {
 
     switch (perk.icon) {
       case 'shield':
-        return <Shield size={16} color={perk.color} />;
+        return <Feather name="shield" size={16} color={perk.color} />;
       case 'zap':
-        return <Zap size={16} color={perk.color} />;
+        return <Feather name="zap" size={16} color={perk.color} />;
       case 'copy':
-        return <Copy size={16} color={perk.color} />;
+        return <Feather name="copy" size={16} color={perk.color} />;
       default:
         return null;
     }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import { Zap, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import Colors from '@/constants/colors';
 
 interface GameControlsProps {
@@ -26,7 +26,7 @@ export default function GameControls({
           onPress={onPressUp}
           activeOpacity={0.7}
         >
-          <ArrowUp size={24} color={Colors.text} />
+          <Feather name="arrow-up" size={24} color={Colors.text} />
         </TouchableOpacity>
         
         <View style={styles.middleRow}>
@@ -35,7 +35,7 @@ export default function GameControls({
             onPress={onPressLeft}
             activeOpacity={0.7}
           >
-            <ArrowLeft size={24} color={Colors.text} />
+            <Feather name="arrow-left" size={24} color={Colors.text} />
           </TouchableOpacity>
           
           <View style={styles.centerSpace} />
@@ -45,7 +45,7 @@ export default function GameControls({
             onPress={onPressRight}
             activeOpacity={0.7}
           >
-            <ArrowRight size={24} color={Colors.text} />
+            <Feather name="arrow-right" size={24} color={Colors.text} />
           </TouchableOpacity>
         </View>
         
@@ -54,7 +54,7 @@ export default function GameControls({
           onPress={onPressDown}
           activeOpacity={0.7}
         >
-          <ArrowDown size={24} color={Colors.text} />
+          <Feather name="arrow-down" size={24} color={Colors.text} />
         </TouchableOpacity>
       </View>
       
@@ -63,7 +63,7 @@ export default function GameControls({
         onPress={onPressAction}
         activeOpacity={0.7}
       >
-        <Zap size={24} color={Colors.text} />
+        <Feather name="zap" size={24} color={Colors.text} />
         <Text style={styles.actionText}>Z</Text>
       </TouchableOpacity>
     </View>

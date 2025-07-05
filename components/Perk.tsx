@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Shield, Zap, Copy } from 'lucide-react-native';
+import { Feather } from '@expo/vector-icons';
 import Colors from '@/constants/colors';
 
 interface PerkProps {
@@ -12,15 +12,15 @@ export default function Perk({ type, color }: PerkProps) {
   const renderIcon = () => {
     switch (type) {
       case 'shield':
-        return <Shield size={20} color={Colors.text} />;
+        return <Feather name="shield" size={20} color={Colors.text} />;
       case 'rapidfire':
-        return <Zap size={20} color={Colors.text} />;
+        return <Feather name="zap" size={20} color={Colors.text} />;
       case 'doubleshoot':
-        return <Copy size={20} color={Colors.text} />;
+        return <Feather name="copy" size={20} color={Colors.text} />;
       case 'powerup':
-        return <Zap size={20} color={Colors.text} />;
+        return <Feather name="zap" size={20} color={Colors.text} />;
       default:
-        return <Zap size={20} color={Colors.text} />;
+        return <Feather name="zap" size={20} color={Colors.text} />;
     }
   };
   

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -7,70 +7,94 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 import { useGameStore } from '@/store/gameStore';
-import { CHARACTERS } from '@/constants/characters';
 import CharacterCard from '@/components/CharacterCard';
 import Button from '@/components/Button';
 import Colors from '@/constants/colors';
 
 export default function CharacterSelectScreen() {
   const router = useRouter();
-  const { selectCharacter, startGame } = useGameStore();
+  const { selectCharacter, startGame, characters, charactersLoading, loadCharactersAsync } = useGameStore();
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
-  
+
+  useEffect(() => {
+    console.log('🎯 Character select screen mounted');
+    console.log('📊 Current characters:', characters.length);
+    console.log('⏳ Characters loading:', charactersLoading);
+    
+    // Only load characters if we don't have any and we're not already loading
+    if (characters.length === 0 && !charactersLoading) {
+      console.log('🔄 Loading characters...');
+      loadCharactersAsync();
+    } else {
+      console.log('✅ Characters already available or loading');
+    }
+  }, []);
+
   const handleSelectCharacter = (character: any) => {
+    console.log('👤 Character selected:', character.name);
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     setSelectedCharacterId(character.id);
     selectCharacter(character);
   };
-  
+
   const handleStartGame = () => {
-    if (!selectedCharacterId) return;
-    
+    console.log('🚀 Starting game with character:', selectedCharacterId);
+    if (!selectedCharacterId) {
+      console.warn('⚠️ No character selected!');
+      return;
+    }
+
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-    
+
     startGame();
     router.push('/game');
   };
-  
+
   const handleBack = () => {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     router.back();
   };
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
-      
+
       <LinearGradient
         colors={['#121212', '#2a2a2a']}
         style={styles.background}
       />
-      
+
       <View style={styles.header}>
         <Text style={styles.title}>SELECT YOUR CHARACTER</Text>
         <Text style={styles.subtitle}>Each character has unique abilities</Text>
       </View>
-      
-      <FlatList
-        data={CHARACTERS}
-        renderItem={({ item }) => (
-          <CharacterCard
-            character={item}
-            selected={selectedCharacterId === item.id}
-            onSelect={handleSelectCharacter}
-          />
-        )}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
-      
+
+      {charactersLoading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      ) : (
+        <FlatList
+          data={characters}
+          renderItem={({ item }) => (
+            <CharacterCard
+              character={item}
+              selected={selectedCharacterId === item.id}
+              onSelect={handleSelectCharacter}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+
       <View style={styles.footer}>
         <Button
           title="BACK"
@@ -79,7 +103,7 @@ export default function CharacterSelectScreen() {
           size="medium"
           style={styles.backButton}
         />
-        
+
         <Button
           title="START GAME"
           onPress={handleStartGame}

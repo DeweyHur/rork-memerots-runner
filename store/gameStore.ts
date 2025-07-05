@@ -3,7 +3,75 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { devtools } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Character, GameState, LeaderboardEntry } from '@/types/game';
-import { CHARACTERS, STAGES } from '@/constants/characters';
+import { loadCharacters, STAGES } from '@/constants/characters';
+
+// Default characters to prevent infinite loading
+const DEFAULT_CHARACTERS: Character[] = [
+  {
+    id: '1',
+    name: 'Tra',
+    description: 'The main protagonist',
+    color: '#FF6B6B',
+    specialWeapon: 'Rapid Fire',
+    specialAbility: 'Double Jump',
+    image: '/assets/images/characters.png',
+    sprites: {
+      walk: [],
+      jump: [],
+      fall: [],
+      attack: []
+    },
+    stats: { speed: 8, power: 6, defense: 5 }
+  },
+  {
+    id: '2',
+    name: 'Chef',
+    description: 'Master of the kitchen',
+    color: '#4ECDC4',
+    specialWeapon: 'Flying Pan',
+    specialAbility: 'Food Shield',
+    image: '/assets/images/characters.png',
+    sprites: {
+      walk: [],
+      jump: [],
+      fall: [],
+      attack: []
+    },
+    stats: { speed: 5, power: 8, defense: 7 }
+  },
+  {
+    id: '3',
+    name: 'Barista',
+    description: 'Coffee-powered runner',
+    color: '#6B9EFF',
+    specialWeapon: 'Steam Blast',
+    specialAbility: 'Caffeine Boost',
+    image: '/assets/images/characters.png',
+    sprites: {
+      walk: [],
+      jump: [],
+      fall: [],
+      attack: []
+    },
+    stats: { speed: 7, power: 5, defense: 6 }
+  },
+  {
+    id: '4',
+    name: 'Waiter',
+    description: 'Agile and quick',
+    color: '#FFE66D',
+    specialWeapon: 'Plate Throw',
+    specialAbility: 'Quick Step',
+    image: '/assets/images/characters.png',
+    sprites: {
+      walk: [],
+      jump: [],
+      fall: [],
+      attack: []
+    },
+    stats: { speed: 9, power: 4, defense: 4 }
+  }
+];
 
 interface GameStore {
   // Game state
@@ -11,6 +79,8 @@ interface GameStore {
   selectedCharacter: Character | null;
   leaderboard: LeaderboardEntry[];
   playerName: string;
+  characters: Character[];
+  charactersLoading: boolean;
   
   // Actions
   selectCharacter: (character: Character) => void;
@@ -33,6 +103,7 @@ interface GameStore {
   addToLeaderboard: (entry: Omit<LeaderboardEntry, 'id' | 'date'>) => void;
   setPlayerName: (name: string) => void;
   advanceStage: () => void;
+  loadCharactersAsync: () => Promise<void>;
 }
 
 const initialGameState: GameState = {
@@ -55,6 +126,31 @@ export const useGameStore = create<GameStore>()(
         selectedCharacter: null,
         leaderboard: [],
         playerName: 'Player',
+        characters: DEFAULT_CHARACTERS,
+        charactersLoading: false,
+
+        loadCharactersAsync: async () => {
+          console.log('🔄 GameStore: Starting character loading...');
+          set({ charactersLoading: true });
+          try {
+            // Add a timeout to prevent infinite hanging
+            const timeoutPromise = new Promise<never>((_, reject) => 
+              setTimeout(() => reject(new Error('Character loading timeout')), 10000)
+            );
+            
+            const chars = await Promise.race([
+              loadCharacters(),
+              timeoutPromise
+            ]);
+            
+            console.log('✅ GameStore: Characters loaded successfully:', chars.length);
+            set({ characters: chars, charactersLoading: false });
+          } catch (error) {
+            console.error('❌ GameStore: Error loading characters:', error);
+            // Keep default characters and set loading to false
+            set({ characters: DEFAULT_CHARACTERS, charactersLoading: false });
+          }
+        },
 
         selectCharacter: (character) => set({ selectedCharacter: character }),
         

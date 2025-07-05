@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,15 +7,20 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 import { useGameStore } from '@/store/gameStore';
-import { CHARACTERS } from '@/constants/characters';
 import LeaderboardTable from '@/components/LeaderboardTable';
 import Button from '@/components/Button';
 import Colors from '@/constants/colors';
 
 export default function LeaderboardScreen() {
   const router = useRouter();
-  const { leaderboard } = useGameStore();
+  const { leaderboard, characters, charactersLoading, loadCharactersAsync } = useGameStore();
   const [filter, setFilter] = useState<string | undefined>(undefined);
+  
+  useEffect(() => {
+    if (!characters.length && !charactersLoading) {
+      loadCharactersAsync();
+    }
+  }, []);
   
   const handleFilterChange = (characterId: string | undefined) => {
     if (Platform.OS !== 'web') {
@@ -61,7 +66,7 @@ export default function LeaderboardScreen() {
           </Text>
         </TouchableOpacity>
         
-        {CHARACTERS.map((character) => (
+        {characters.map((character) => (
           <TouchableOpacity
             key={character.id}
             style={[
