@@ -196,8 +196,59 @@ After applying the rules, verify:
 
 **Valid sprite action names for all character sprite data:**
 
-- `left`
-- `right`
+- `left` - Left-facing walking animation (used for enemies moving right-to-left)
+- `right` - Right-facing walking animation
+- `up` - Upward movement animation (used for jumping)
+- `down` - Downward movement animation (used for walking/crouching)
+- `hit` - Hit/damage animation
+- `dead` - Death animation
+
+**⚠️ IMPORTANT: Do NOT use the old mapped action names:**
+- ❌ `walk` (use `down` or `left`/`right` instead)
+- ❌ `jump` (use `up` instead)
+- ❌ `fall` (use `down` instead)
+- ❌ `attack` (use `hit` instead)
+
+## Sprite System Usage
+
+### For Players
+- **Default action**: `down` (walking animation)
+- **Jumping**: `up` action
+- **Crouching**: `left` action
+- **Dashing/Avoiding**: `right` action
+
+### For Enemies
+- **Default action**: `left` (walking animation as enemies move right-to-left)
+- **Fallback**: `down` → `right` → `up` if `left` is not available
+
+### Sprite Data Structure
+```typescript
+interface Character {
+  sprites: {
+    down: SpriteFrame[];
+    up: SpriteFrame[];
+    left: SpriteFrame[];
+    right: SpriteFrame[];
+    hit: SpriteFrame[];
+    dead: SpriteFrame[];
+  };
+}
+```
+
+### Character IDs
+- **Players**: `0` (아레스1), `1` (에레인)
+- **Enemies**: `149`, `150`, `151`, `152`, `153`, `154`, `155`, `156`, `157`, `158`, `159`, `161`, `163`, `164`, `166`, `167`, `168`
+
+### Sprite Animation Component
+Use `SpriteAnimation` component for rendering sprites:
+```tsx
+<SpriteAnimation
+  spriteFrames={character.sprites.down}
+  imageSource={character.image}
+  frameRate={150}
+  isPlaying={true}
+/>
+```
 - `up`
 - `down`
 - `hit`
