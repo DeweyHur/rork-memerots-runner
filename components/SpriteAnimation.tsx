@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 
 interface SpriteAnimationProps {
-  spriteSheet: any;
-  columns: number;
-  rows: number;
+  spriteSheet?: any; // For traditional sprite sheets
+  spriteFrames?: any[]; // For frame data from JSON
+  imageSource?: any; // The source image for sprite frames
+  columns?: number;
+  rows?: number;
   frameRate: number;
   isPlaying: boolean;
   style?: any;
@@ -12,8 +14,10 @@ interface SpriteAnimationProps {
 
 export default function SpriteAnimation({ 
   spriteSheet, 
-  columns, 
-  rows, 
+  spriteFrames,
+  imageSource,
+  columns = 4, 
+  rows = 1, 
   frameRate, 
   isPlaying, 
   style 
@@ -21,7 +25,8 @@ export default function SpriteAnimation({
   const [currentFrame, setCurrentFrame] = useState(0);
   const [animationTimer, setAnimationTimer] = useState(0);
   
-  const totalFrames = columns * rows;
+  // If we have sprite frames, use their length, otherwise use traditional sprite sheet
+  const totalFrames = spriteFrames ? spriteFrames.length : (columns * rows);
   
   // Animation frame counter for sprite cycling
   useEffect(() => {
@@ -39,7 +44,45 @@ export default function SpriteAnimation({
     setCurrentFrame(animationTimer % totalFrames);
   }, [animationTimer, totalFrames]);
   
-  // Calculate which row and column the current frame is in
+  // If we have sprite frames, render them using the frame data
+  if (spriteFrames && spriteFrames.length > 0) {
+    const currentFrameData = spriteFrames[currentFrame];
+    if (!currentFrameData) {
+      return null;
+    }
+    const { frame } = currentFrameData;
+    const scale = 4;
+    // The sprite sheet is 2048x2048
+    return (
+      <View
+        style={[
+          {
+            width: frame.w * scale,
+            height: frame.h * scale,
+            overflow: 'hidden',
+          },
+          style,
+        ]}
+      >
+        <Image
+          source={imageSource || require('../assets/images/characters.png')}
+          style={{
+            width: 2048 * scale,
+            height: 2048 * scale,
+            transform: [
+              { translateX: -frame.x * scale },
+              { translateY: -frame.y * scale },
+            ],
+          }}
+          resizeMode="cover"
+          onError={error => console.log('❌ Image loading error:', error)}
+          onLoad={() => console.log('✅ Image loaded successfully')}
+        />
+      </View>
+    );
+  }
+  
+  // Traditional sprite sheet rendering
   const currentRow = Math.floor(currentFrame / columns);
   const currentCol = currentFrame % columns;
   
@@ -76,12 +119,12 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: '100%',
-    overflow: 'hidden',
+    overflow: 'visible', // Changed from 'hidden' to 'visible'
   },
   spriteSheetContainer: {
     width: '100%',
     height: '100%',
-    overflow: 'hidden',
+    overflow: 'visible', // Changed from 'hidden' to 'visible'
   },
   spriteSheet: {
     width: '100%',
